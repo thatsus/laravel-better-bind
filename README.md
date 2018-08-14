@@ -4,8 +4,7 @@ A better bind feature for automated tests in Laravel
 # Why BetterBind is better
 
 Automated testing in Laravel using mocks means injecting objects into code
-using the Application object's `bind` and `make` methods along with a couple 
-others.
+using the Application object's `bind` and `makeWith` methods.
 
 This can have some drawbacks.
 

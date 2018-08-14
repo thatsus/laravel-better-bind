@@ -145,6 +145,13 @@ assertions will run against the parameters.
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
 
+# Compatiblity
+
+We believe this code is compatible with all versions of Laravel 5+ and Lumen 
+5+, but testing is a chore because `make` changed to `makeWith` in 5.4 just 
+to confuse everybody. Drop us a line and let us know how great it is and what 
+version of Laravel you're working with.
+
 # Contribution
 
 If you find a bug or want to contribute to the code or documentation, you can help by submitting an [issue](https://github.com/thatsus/laravel-better-bind/issues) or a [pull request](https://github.com/thatsus/laravel-better-bind/pulls).

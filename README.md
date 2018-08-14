@@ -42,7 +42,8 @@ class TestCase
 # Example Test
 
 In this example we expect the `bark` method to create a `Sound` object with 
-the value 'bark' for the constructor's `$sound` parameter.
+the value 'bark' for the constructor's `$sound` parameter. We use the 
+`appInstance` method from BetterBind to provide the mock to the code.
 
 ```php
 class DogTest extends TestCase
@@ -98,7 +99,7 @@ Required parameter `sound` not provided to class constructor for `Sound`
 
 ## Failing Code 2
 
-Now goofus included an extra parameter for the constructor by accident.
+Now Goofus included an extra parameter for the constructor by accident.
 
 ```php
 class Dog
@@ -117,7 +118,7 @@ Extra parameters provided to class constructor for `Sound`: `volume`
 
 # Methods
 
-## appInstance($signature, $object, [&$params = []])
+### appInstance($signature, $object, [&$params = []])
 
  * $signature - string, the class name or other string requested in a 
                 `makeWith` call.
@@ -129,7 +130,7 @@ Extra parameters provided to class constructor for `Sound`: `volume`
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
 
-## appBind($signature, $closure, [&$params = []])
+### appBind($signature, $closure, [&$params = []])
 
  * $signature - string, the class name or other string requested in a 
                 `makeWith` call.
@@ -144,11 +145,11 @@ assertions will run against the parameters.
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
 
-### Contribution
+# Contribution
 
 If you find a bug or want to contribute to the code or documentation, you can help by submitting an [issue](https://github.com/thatsus/laravel-better-bind/issues) or a [pull request](https://github.com/thatsus/laravel-better-bind/pulls).
 
-### License
+# License
 
 [MIT](http://opensource.org/licenses/MIT)
 

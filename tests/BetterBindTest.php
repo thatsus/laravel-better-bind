@@ -116,7 +116,7 @@ class BetterBindTest extends TestCase
 
     /**
      * A class that needs some params.
-     * Too many params are passed in.
+     * Too many params are passed in. (FAILURE!)
      */
     public function testBindHeadfulClassWithTooManyParams()
     {

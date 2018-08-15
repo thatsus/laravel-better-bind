@@ -42,8 +42,11 @@ class TestCase
 # Example Test
 
 In this example we expect the `Dog::bark` method to create a `Sound` object with 
-the value 'bark' for the constructor's `$sound` parameter. We use the 
-`appInstance` method from BetterBind to provide the mock to the code.
+itself as the value for the constructor's `$animal` parameter.
+
+First, we use the `appInstance` method from BetterBind to provide the mock to 
+the code. Then we capture the `$params` argument and check at the end that it 
+has the parameter values we expect.
 
 ```php
 class DogTest extends TestCase
@@ -52,14 +55,13 @@ class DogTest extends TestCase
     {
         $mock = Mockery::mock(Sound::class);
         $mock->shouldReceive('emit')
-            ->with('bark')
             ->once();
         $this->appInstance(Sound::class, $mock, $params);
 
         $dog = new Dog();
         $dog->bark();
 
-        $this->assertEquals(['sound' => 'bark'], $params);
+        $this->assertEquals(['animal' => $dog], $params);
     }
 }
 ```
@@ -67,7 +69,7 @@ class DogTest extends TestCase
 ```php
 class Sound
 {
-    public function __construct(string $sound)
+    public function __construct(Animal $animal)
     {
         // ...
     }
@@ -83,7 +85,7 @@ class Dog
 {
     public function bark()
     {
-        App::makeWith(Sound::class, ['sound' => 'bark'])->emit();
+        App::makeWith(Sound::class, ['animal' => $this])->emit();
     }
 }
 ```
@@ -97,14 +99,14 @@ class Dog
 {
     public function bark()
     {
-        App::makeWith(Sound::class, ['bark'])->emit();
+        App::makeWith(Sound::class, [$this])->emit();
     }
 }
 ```
 
 ```
 1) DogTest::testBark
-Required parameter `sound` not provided to class constructor for `Sound`
+Required parameter `animal` not provided to class constructor for `Sound`
 ```
 
 ## Failing Code 2
@@ -116,7 +118,7 @@ class Dog
 {
     public function bark()
     {
-        App::makeWith(Sound::class, ['sound' => 'bark', 'volume' => 'loud'])->emit();
+        App::makeWith(Sound::class, ['animal' => $this, 'volume' => 'loud'])->emit();
     }
 }
 ```
@@ -154,6 +156,77 @@ assertions will run against the parameters.
 
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
+
+# I'm not convinced. Can't I do this without BetterBind?
+
+You can do some of the same stuff without this library.
+
+Compare the following versions of the test.
+
+```php
+class DogTest extends TestCase
+{
+    public function testBark()
+    {
+        $mock = Mockery::mock(Sound::class);
+        $mock->shouldReceive('emit')
+            ->once();
+        $this->appInstance(Sound::class, $mock, $params);
+
+        $dog = new Dog();
+        $dog->bark();
+
+        $this->assertEquals(['animal' => $dog], $params);
+    }
+}
+```
+
+```php
+class DogTest extends TestCase
+{
+    public function testBark()
+    {
+        $mock = Mockery::mock(Sound::class);
+        $mock->shouldReceive('emit')
+            ->once();
+        App::bind(Sound::class, function ($app, $bind_params) use (&$params, $mock) {
+            $params = $bind_params;
+            return $mock;
+        });
+
+        $dog = new Dog();
+        $dog->bark();
+
+        $this->assertEquals(['animal' => $dog], $params);
+    }
+}
+```
+
+The obvious drawback to the version that doesn't use BetterBind is that there 
+are extra lines, and one of them is very verbose. The secret extra drawback 
+here is that nothing tests to ensure that the requirements to the real `Sound` 
+class's constructor are met.
+
+What will happen if you write the code from "Failing Code 1"?
+
+```php
+class Dog
+{
+    public function bark()
+    {
+        App::makeWith(Sound::class, [$this])->emit();
+    }
+}
+```
+
+Laravel will detect that `Sound`'s constructor typehints an `Animal` object. 
+But no 'animal' element is in the params, so Laravel will new up an `Animal` 
+object to do the job. There will be no test failure.
+
+Using BetterBind, the missing value will be detected and the test will fail.
+
+Of course, if you want Laravel to fill in a new `Animal` object itself, you 
+can use `Application`'s original `bind` method.
 
 # Compatibility
 

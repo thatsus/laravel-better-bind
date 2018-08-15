@@ -1,19 +1,19 @@
 # laravel-better-bind
-A better bind feature for automated tests in Laravel
+A better bind feature for automated tests in Laravel/Lumen 5+.
 
 # Why BetterBind is better
 
-Automated testing in Laravel using mocks means injecting objects into code
-using the Application object's `bind` and `makeWith` methods.
+Automated testing in Laravel using mocks means injecting objects using the 
+Application's `bind` and `makeWith` methods.
 
 This can have some drawbacks.
 
- * It's verbose.
- * Failures in the way objects are instantiated aren't caught.
+ * It's verbose in Laravel.
+ * It doesn't test that the objects are instantiated with the right parameters.
 
-BetterBind provides an easy-to-use mechanism to verify that the parameters your
-operation code provides to your mocked class are the parameters that the 
-underlying class expects.
+BetterBind provides a syntactically friendly mechanism to verify that the 
+parameters your operational code provides are the parameters that the real 
+target class expects.
 
 Missing parameters cause an assertion failure.
 
@@ -21,8 +21,8 @@ Extra parameters cause an assertion failure.
 
 It can be a one-liner.
 
-BetterBind also offers a way to capture the constructor parameters so you can 
-run your own assertions on them.
+BetterBind also provides a way to capture the constructor parameters so you 
+can run your own assertions on them.
 
 # Installation
 
@@ -41,7 +41,7 @@ class TestCase
 
 # Example Test
 
-In this example we expect the `bark` method to create a `Sound` object with 
+In this example we expect the `Dog::bark` method to create a `Sound` object with 
 the value 'bark' for the constructor's `$sound` parameter. We use the 
 `appInstance` method from BetterBind to provide the mock to the code.
 
@@ -60,6 +60,16 @@ class DogTest extends TestCase
         $dog->bark();
 
         $this->assertEquals(['sound' => 'bark'], $params);
+    }
+}
+```
+
+```php
+class Sound
+{
+    public function __construct(string $sound)
+    {
+        // ...
     }
 }
 ```
@@ -123,9 +133,9 @@ Extra parameters provided to class constructor for `Sound`: `volume`
  * $signature - string, the class name or other string requested in a 
                 `makeWith` call.
  * $object    - mixed, the value to return from the `makeWith` call.
- * $params    - optional, when `makeWith` is called, this value will be updated
-                with the parameters sent to `makeWith` so that test code may make
-                assertions against them.
+ * $params    - optional, when `makeWith` is called, this variable will be 
+                updated with the parameters sent to `makeWith` so that your 
+                test code may make assertions against them.
 
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
@@ -138,17 +148,17 @@ assertions will run against the parameters.
                 return value will be returned from `makeWith`. The parameters
                 will be `$app`, the Application object, and `$params`, the 
                 array of parameters sent to `makeWith`.
- * $params    - optional, when `makeWith` is called, this value will be updated
-                with the parameters sent to `makeWith` so that test code may make
-                assertions against them.
+ * $params    - optional, when `makeWith` is called, this variable will be 
+                updated with the parameters sent to `makeWith` so that your 
+                test code may make assertions against them.
 
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
 
-# Compatiblity
+# Compatibility
 
 We believe this code is compatible with all versions of Laravel 5+ and Lumen 
-5+, but testing is a chore because `make` changed to `makeWith` in 5.4 just 
+5+, but testing it is a chore because `make` changed to `makeWith` in 5.4 just 
 to confuse everybody. Drop us a line and let us know how great it is and what 
 version of Laravel you're working with.
 

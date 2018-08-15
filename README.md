@@ -76,7 +76,7 @@ class Sound
 
 ## Passing Code
 
-Galant wrote this code correctly with the right parameters for the constructor.
+Gallant wrote this code correctly with the right parameters for the constructor.
 
 ```php
 class Dog

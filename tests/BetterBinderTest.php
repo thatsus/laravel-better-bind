@@ -10,10 +10,19 @@ class BetterBinderTest extends \TestCase
         new BetterBinder();
     }
 
-    public function testIgnoreParameters()
+    public function testIgnoreParameters_Array()
     {
         $binder = new BetterBinder();
         $results = $binder->ignoreParameters(['x']);
+
+        $this->assertSame($binder, $results);
+        $this->assertEquals(['x'], $binder->getIgnoreParameters());
+    }
+
+    public function testIgnoreParameters_String()
+    {
+        $binder = new BetterBinder();
+        $results = $binder->ignoreParameters('x');
 
         $this->assertSame($binder, $results);
         $this->assertEquals(['x'], $binder->getIgnoreParameters());

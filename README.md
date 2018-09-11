@@ -235,8 +235,8 @@ object to do the job. There will be no test failure.
 
 Using BetterBind, the missing value will be detected and the test will fail.
 
-Of course, if you _want_ Laravel to fill in a new `Animal` object itself, you 
-can use `Application`'s original `bind` method.
+If you _want_ Laravel to fill in a new `Animal` object itself, you can add 
+`->ignoreParameters('animal')`.
 
 # Compatibility
 

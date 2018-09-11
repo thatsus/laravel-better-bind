@@ -3,17 +3,20 @@ A better bind feature for automated tests in Laravel/Lumen 5+.
 
 # Why BetterBind is better
 
+1. It's less verbose than Laravel's built-in option.
+2. It protects you against missing constructor parameters.
+3. You can choose to check the constructor parameters for correctness.
+
 Automated testing in Laravel using mocks means injecting objects using the 
-Application's `bind` and `makeWith` methods.
+Application's `bind` method.
 
 This can have some drawbacks.
 
- * It's verbose in Laravel.
- * It doesn't test that the objects are instantiated with the right parameters.
+ * `App::bind` is verbose in Laravel.
+ * `App::bind` doesn't test that the objects are instantiated with the right parameters.
 
-BetterBind provides a syntactically friendly mechanism to verify that the 
-parameters your operational code provides are the parameters that the real 
-target class expects.
+BetterBind provides a syntactically friendly mechanism to verify that 
+constructor parameters match your target class.
 
 Missing parameters cause an assertion failure.
 
@@ -156,6 +159,13 @@ assertions will run against the parameters.
 
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
+
+### appBind(...)->ignoreParameters($param1, $param2, ...)
+
+ Do not check that the given parameters name are given by the call to 
+ `makeWith`. Allow Laravel to supply them.
+
+ * $paramN - string, the name of a parameter
 
 # I'm not convinced. Can't I do this without BetterBind?
 

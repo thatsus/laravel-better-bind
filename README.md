@@ -13,7 +13,7 @@ Application's `bind` method.
 This can have some drawbacks.
 
  * `App::bind` is verbose in Laravel.
- * `App::bind` doesn't test that the objects are instantiated with the right parameters.
+ * `App::bind` doesn't test that an object is instantiated with the right parameters.
 
 BetterBind provides a syntactically friendly mechanism to verify that 
 constructor parameters match your target class.

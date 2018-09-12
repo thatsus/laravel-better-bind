@@ -4,19 +4,19 @@ namespace ThatsUs;
 
 class BetterBinder
 {
-    private $ignore_parameters = [];
+    private $ignored_parameters = [];
 
     public function ignoreParameters(...$params)
     {
         if (is_array($params[0])) {
             $params = $params[0];
         }
-        $this->ignore_parameters = $params;
+        $this->ignored_parameters = $params;
         return $this;
     }
 
-    public function getIgnoreParameters()
+    public function getIgnoredParameters()
     {
-        return $this->ignore_parameters;
+        return $this->ignored_parameters;
     }
 }

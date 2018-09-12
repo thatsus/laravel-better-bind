@@ -15,7 +15,7 @@ trait BetterBind
         App::bind($signature, function ($app, $params) use ($signature, $closure, &$caught_params, $binder) {
             $caught_params = $params;
             if (class_exists($signature)) {
-                $this->assertParamsMatchConstructor($signature, $params, $binder->getIgnoreParameters());
+                $this->assertParamsMatchConstructor($signature, $params, $binder->getIgnoredParameters());
             }
             return $closure($app, $params);
         });

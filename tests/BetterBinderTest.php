@@ -16,7 +16,7 @@ class BetterBinderTest extends \TestCase
         $results = $binder->ignoreParameters(['x']);
 
         $this->assertSame($binder, $results);
-        $this->assertEquals(['x'], $binder->getIgnoreParameters());
+        $this->assertEquals(['x'], $binder->getIgnoredParameters());
     }
 
     public function testIgnoreParameters_String()
@@ -25,6 +25,6 @@ class BetterBinderTest extends \TestCase
         $results = $binder->ignoreParameters('x');
 
         $this->assertSame($binder, $results);
-        $this->assertEquals(['x'], $binder->getIgnoreParameters());
+        $this->assertEquals(['x'], $binder->getIgnoredParameters());
     }
 }

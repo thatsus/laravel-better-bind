@@ -144,4 +144,13 @@ class BetterBindTest extends TestCase
         $this->assertEquals($params['y'], 'z');
         $this->assertCount(1, $params);
     }
+
+    public function testIgnoreParameters()
+    {
+        $object = new stdClass();
+        $this->betterInstance(INeedParams::class, $object, $params)
+            ->ignoreParameters('first_param');
+        $got = App::makeWith(INeedParams::class, ['second_param' => 456]);
+        $this->assertSame($object, $got);
+    }
 }

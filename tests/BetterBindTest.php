@@ -56,6 +56,7 @@ class BetterBindTest extends TestCase
     {
         $object = new stdClass();
         $this->betterBind(INeedNoParams::class, function () use ($object) { return $object; }, $params);
+        $e = null;
         try {
             App::makeWith(INeedNoParams::class, ['y' => 'z']);
         } catch (PHPUnit_Framework_ExpectationFailedException $e) {
@@ -104,6 +105,7 @@ class BetterBindTest extends TestCase
     {
         $object = new stdClass();
         $this->betterBind(INeedParams::class, function () use ($object) { return $object; }, $params);
+        $e = null;
         try {
             App::makeWith(INeedParams::class, []);   
         } catch (PHPUnit_Framework_ExpectationFailedException $e) {
@@ -122,6 +124,7 @@ class BetterBindTest extends TestCase
     {
         $object = new stdClass();
         $this->betterBind(INeedParams::class, function () use ($object) { return $object; }, $params);
+        $e = null;
         try {
             App::makeWith(INeedParams::class, ['first_param' => 123, 'second_param' => 456, 'failure_param' => 789]);   
         } catch (PHPUnit_Framework_ExpectationFailedException $e) {
@@ -152,5 +155,40 @@ class BetterBindTest extends TestCase
             ->ignoreParameters('first_param');
         $got = App::makeWith(INeedParams::class, ['second_param' => 456]);
         $this->assertSame($object, $got);
+    }
+
+    public function testTypehintsSuccess()
+    {
+        $object = new stdClass();
+        $this->betterInstance(INeedParamsWithTypes::class, $object, $params);
+        $got = App::makeWith(INeedParamsWithTypes::class, [
+            'first_param' => Mockery::mock(stdClass::class),
+            'second_param' => 'some string',
+        ]);
+        $this->assertEquals($object, $got);
+        $this->assertInstanceOf(stdClass::class, $params['first_param']);
+        $this->assertEquals('some string', $params['second_param']);
+    }
+
+    public function testTypehintsFail()
+    {
+        $object = new stdClass();
+        $this->betterInstance(INeedParamsWithTypes::class, $object, $params);
+        $e = null;
+        try {
+            App::makeWith(INeedParamsWithTypes::class, [
+                'first_param' => 'oh no',
+                'second_param' => 'some string',
+            ]);
+        } catch (PHPUnit_Framework_ExpectationFailedException $e) {
+        }
+        $this->assertNotNull($e);
+        $this->assertRegExp('/INeedParamsWithTypes/', $e->getMessage());
+        $this->assertRegExp('/first_param/', $e->getMessage());
+        $this->assertRegExp('/stdClass/', $e->getMessage());
+        $this->assertRegExp('/string/', $e->getMessage());
+        $this->assertNotRegExp('/second_param/', $e->getMessage());
+        $this->assertEquals('oh no', $params['first_param']);
+        $this->assertEquals('some string', $params['second_param']);
     }
 }

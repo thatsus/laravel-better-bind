@@ -170,7 +170,7 @@ class BetterBindTest extends TestCase
         $this->assertEquals('some string', $params['second_param']);
     }
 
-    public function testTypehintsFail()
+    public function testTypehintsFailRequired()
     {
         $object = new stdClass();
         $this->betterInstance(INeedParamsWithTypes::class, $object, $params);
@@ -188,7 +188,33 @@ class BetterBindTest extends TestCase
         $this->assertRegExp('/stdClass/', $e->getMessage());
         $this->assertRegExp('/string/', $e->getMessage());
         $this->assertNotRegExp('/second_param/', $e->getMessage());
+        $this->assertNotRegExp('/third_param/', $e->getMessage());
         $this->assertEquals('oh no', $params['first_param']);
         $this->assertEquals('some string', $params['second_param']);
+    }
+
+    public function testTypehintsFailOptional()
+    {
+        $object = new stdClass();
+        $this->betterInstance(INeedParamsWithTypes::class, $object, $params);
+        $e = null;
+        try {
+            App::makeWith(INeedParamsWithTypes::class, [
+                'first_param' => new stdClass(),
+                'second_param' => 'some string',
+                'third_param' => new stdClass(),
+            ]);
+        } catch (PHPUnit_Framework_ExpectationFailedException $e) {
+        }
+        $this->assertNotNull($e);
+        $this->assertRegExp('/INeedParamsWithTypes/', $e->getMessage());
+        $this->assertRegExp('/third_param/', $e->getMessage());
+        $this->assertRegExp('/stdClass/', $e->getMessage());
+        $this->assertRegExp('/string/', $e->getMessage());
+        $this->assertNotRegExp('/first_param/', $e->getMessage());
+        $this->assertNotRegExp('/second_param/', $e->getMessage());
+        $this->assertInstanceOf(stdClass::class, $params['first_param']);
+        $this->assertEquals('some string', $params['second_param']);
+        $this->assertInstanceOf(stdClass::class, $params['third_param']);
     }
 }

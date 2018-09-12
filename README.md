@@ -1,7 +1,7 @@
 # laravel-better-bind
 A better bind feature for automated tests in Laravel/Lumen 5+.
 
-# Why BetterBind is better
+# Why Better Bind is better
 
 1. It's less verbose than Laravel's built-in option.
 2. It protects you against missing constructor parameters.
@@ -15,16 +15,18 @@ This can have some drawbacks.
  * `App::bind` is verbose in Laravel.
  * `App::bind` doesn't test that an object is instantiated with the right parameters.
 
-BetterBind provides a syntactically friendly mechanism to verify that 
+Better Bind provides a syntactically friendly mechanism to verify that 
 constructor parameters match your target class.
 
-Missing parameters cause an assertion failure.
+Missing required parameters cause an assertion failure.
 
 Extra parameters cause an assertion failure.
 
+Wrong-type parameters cause an assertion failure.
+
 It can be a one-liner.
 
-BetterBind also provides a way to capture the constructor parameters so you 
+Better Bind also provides a way to capture the constructor parameters so you 
 can run your own assertions on them.
 
 # Installation
@@ -36,7 +38,7 @@ composer require thatsus/laravel-better-bind
 ```php
 class TestCase
 {
-    use \ThatsUs\BetterBind;
+    use \ThatsUs\Better Bind;
 
     ...
 }
@@ -47,7 +49,7 @@ class TestCase
 In this example we expect the `Dog::bark` method to create a `Sound` object with 
 itself as the value for the constructor's `$animal` parameter.
 
-First, we use the `betterInstance` method from BetterBind to provide the mock to 
+First, we use the `betterInstance` method from Better Bind to provide the mock to 
 the code. Then we capture the `$params` argument and check at the end that it 
 has the parameter values we expect.
 
@@ -131,6 +133,25 @@ class Dog
 Extra parameters provided to class constructor for `Sound`: `volume`
 ```
 
+## Failing Code 3
+
+Goofus accidentally passed in a string. That's the wrong type for the `$animal` parameter.
+
+```php
+class Dog
+{
+    public function bark()
+    {
+        App::makeWith(Sound::class, ['animal' => 'this'])->emit();
+    }
+}
+```
+
+```
+1) DogTest::testBark
+Required parameter `animal` for `Sound` is a `string`, but a `Animal` is expected.
+```
+
 # Methods
 
 ### betterInstance($signature, $object, [&$params = []])
@@ -167,7 +188,7 @@ parameter names are given by the call to `makeWith`.
 
  * $paramN - string, the name of a parameter
 
-# I'm not convinced. Can't I do this without BetterBind?
+# I'm not convinced. Can't I do this without Better Bind?
 
 You can do some of the same stuff without this library.
 
@@ -212,7 +233,7 @@ class DogTest extends TestCase
 }
 ```
 
-The obvious drawback to the version that doesn't use BetterBind is that there 
+The obvious drawback to the version that doesn't use Better Bind is that there 
 are extra lines, and one of them is very verbose. The secret extra drawback 
 here is that nothing tests to ensure that the requirements to the real `Sound` 
 class's constructor are met.
@@ -233,7 +254,7 @@ Laravel will detect that `Sound`'s constructor typehints an `Animal` object.
 But no 'animal' element is in the params, so Laravel will new up an `Animal` 
 object to do the job. There will be no test failure.
 
-Using BetterBind, the missing value will be detected and the test will fail.
+Using Better Bind, the missing value will be detected and the test will fail.
 
 If you _want_ Laravel to fill in a new `Animal` object itself, you can add 
 `->ignoreParameters('animal')`.

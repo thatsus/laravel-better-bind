@@ -38,15 +38,16 @@ trait BetterBind
                 ->each(function ($parameter) use (&$params, $class_name, $ignore_params) {
                     $name = $parameter->getName();
                     if (!$parameter->isOptional() && !in_array($name, $ignore_params)) {
-                        $this->assertTrue(isset($params[$name]), "Required parameter `{$name}` not provided to class constructor for `{$class_name}`");
-                        if ($parameter->getType()) {
-                            $real_type = gettype($params[$name]);
-                            if ($real_type === 'object') {
-                                $real_class = $real_type === 'object' ? get_class($params[$name]) : null;
-                                $this->assertInstanceOf($parameter->getType()->__toString(), $params[$name], "Required parameter `{$name}` for `{$class_name}` is a " . $real_class . ", but a " . $parameter->getType() . " is expected.");
-                            } else {
-                                $this->assertEquals($parameter->getType()->__toString(), $real_type, "Required parameter `{$name}` for `{$class_name}` is a " . $real_type . ", but a " . $parameter->getType() . " is expected.");
-                            }
+                        $this->assertTrue(isset($params[$name]), "Required parameter `{$name}` not provided to class constructor for `{$class_name}`.");
+                    }
+                    if ($parameter->getType() && isset($params[$name])) {
+                        $real_type = gettype($params[$name]);
+                        if ($real_type === 'object') {
+                            $real_class = $real_type === 'object' ? get_class($params[$name]) : null;
+                            $this->assertFalse($parameter->getType()->isBuiltIn(), "Parameter `{$name}` for `{$class_name}` is a `" . $real_class . "`, but a `" . $parameter->getType() . "` is expected.");
+                            $this->assertInstanceOf($parameter->getType()->__toString(), $params[$name], "Parameter `{$name}` for `{$class_name}` is a `" . $real_class . "`, but a `" . $parameter->getType() . "` is expected.");
+                        } else {
+                            $this->assertEquals($parameter->getType()->__toString(), $real_type, "Parameter `{$name}` for `{$class_name}` is a `" . $real_type . "`, but a `" . $parameter->getType() . "` is expected.");
                         }
                     }
                     unset($params[$name]);

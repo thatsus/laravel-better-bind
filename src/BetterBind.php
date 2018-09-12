@@ -9,7 +9,7 @@ use Closure;
 trait BetterBind
 {
 
-    public function appBind(string $signature, Closure $closure, &$caught_params = [])
+    public function betterBind(string $signature, Closure $closure, &$caught_params = [])
     {
         App::bind($signature, function ($app, $params) use ($signature, $closure, &$caught_params) {
             $caught_params = $params;
@@ -20,9 +20,9 @@ trait BetterBind
         });
     }
 
-    public function appInstance(string $signature, $instance, &$caught_params = [])
+    public function betterInstance(string $signature, $instance, &$caught_params = [])
     {
-        $this->appBind($signature, function () use ($instance) { return $instance; }, $caught_params);
+        $this->betterBind($signature, function () use ($instance) { return $instance; }, $caught_params);
     }
 
     public function assertParamsMatchConstructor(string $class_name, array $params)

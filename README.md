@@ -38,7 +38,7 @@ composer require thatsus/laravel-better-bind
 ```php
 class TestCase
 {
-    use \ThatsUs\Better Bind;
+    use \ThatsUs\BetterBind;
 
     ...
 }

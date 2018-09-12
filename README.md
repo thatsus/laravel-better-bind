@@ -47,7 +47,7 @@ class TestCase
 In this example we expect the `Dog::bark` method to create a `Sound` object with 
 itself as the value for the constructor's `$animal` parameter.
 
-First, we use the `appInstance` method from BetterBind to provide the mock to 
+First, we use the `betterInstance` method from BetterBind to provide the mock to 
 the code. Then we capture the `$params` argument and check at the end that it 
 has the parameter values we expect.
 
@@ -59,7 +59,7 @@ class DogTest extends TestCase
         $mock = Mockery::mock(Sound::class);
         $mock->shouldReceive('emit')
             ->once();
-        $this->appInstance(Sound::class, $mock, $params);
+        $this->betterInstance(Sound::class, $mock, $params);
 
         $dog = new Dog();
         $dog->bark();
@@ -133,7 +133,7 @@ Extra parameters provided to class constructor for `Sound`: `volume`
 
 # Methods
 
-### appInstance($signature, $object, [&$params = []])
+### betterInstance($signature, $object, [&$params = []])
 
  * $signature - string, the class name or other string requested in a 
                 `makeWith` call.
@@ -145,7 +145,7 @@ Extra parameters provided to class constructor for `Sound`: `volume`
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
 
-### appBind($signature, $closure, [&$params = []])
+### betterBind($signature, $closure, [&$params = []])
 
  * $signature - string, the class name or other string requested in a 
                 `makeWith` call.
@@ -160,7 +160,7 @@ assertions will run against the parameters.
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
 
-### appBind(...)->ignoreParameters($param1, $param2, ...)
+### betterBind(...)->ignoreParameters($param1, $param2, ...)
 
  Do not check that the given parameters name are given by the call to 
  `makeWith`. Allow Laravel to supply them.
@@ -181,7 +181,7 @@ class DogTest extends TestCase
         $mock = Mockery::mock(Sound::class);
         $mock->shouldReceive('emit')
             ->once();
-        $this->appInstance(Sound::class, $mock, $params);
+        $this->betterInstance(Sound::class, $mock, $params);
 
         $dog = new Dog();
         $dog->bark();

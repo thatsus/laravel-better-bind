@@ -1,9 +1,9 @@
 <?php
 
-class BetterBindTest extends TestCase
+class testBindTest extends TestCase
 {
 
-    use \ThatsUs\BetterBind;
+    use \ThatsUs\testBind;
 
     /**
      * A non-class-name is used for the signature, so we don't expect any 
@@ -13,7 +13,7 @@ class BetterBindTest extends TestCase
     public function testBindNonsenseWordNoParams()
     {
         $object = new stdClass();
-        $this->betterBind('x', function () use ($object) { return $object; }, $params);
+        $this->testBind('x', function () use ($object) { return $object; }, $params);
         $got = App::makeWith('x', []);
         $this->assertEquals($object, $got);
         $this->assertCount(0, $params);
@@ -27,7 +27,7 @@ class BetterBindTest extends TestCase
     public function testBindNonsenseWordAndParams()
     {
         $object = new stdClass();
-        $this->betterBind('x', function () use ($object) { return $object; }, $params);
+        $this->testBind('x', function () use ($object) { return $object; }, $params);
         $got = App::makeWith('x', ['y' => 'z']);
         $this->assertEquals($object, $got);
         $this->assertEquals($params['y'], 'z');
@@ -41,7 +41,7 @@ class BetterBindTest extends TestCase
     public function testBindHeadlessClassNoParams()
     {
         $object = new stdClass();
-        $this->betterBind(INeedNoParams::class, function () use ($object) { return $object; }, $params);
+        $this->testBind(INeedNoParams::class, function () use ($object) { return $object; }, $params);
         $got = App::makeWith(INeedNoParams::class, []);
         $this->assertEquals($object, $got);
         $this->assertCount(0, $params);
@@ -55,7 +55,7 @@ class BetterBindTest extends TestCase
     public function testBindHeadlessClassWithParams()
     {
         $object = new stdClass();
-        $this->betterBind(INeedNoParams::class, function () use ($object) { return $object; }, $params);
+        $this->testBind(INeedNoParams::class, function () use ($object) { return $object; }, $params);
         try {
             App::makeWith(INeedNoParams::class, ['y' => 'z']);
         } catch (PHPUnit_Framework_ExpectationFailedException $e) {
@@ -74,7 +74,7 @@ class BetterBindTest extends TestCase
     public function testBindHeadfulClassWithAllParams()
     {
         $object = new stdClass();
-        $this->betterBind(INeedParams::class, function () use ($object) { return $object; }, $params);
+        $this->testBind(INeedParams::class, function () use ($object) { return $object; }, $params);
         $got = App::makeWith(INeedParams::class, ['first_param' => 123, 'second_param' => 456]);
         $this->assertEquals($object, $got);
         $this->assertEquals(123, $params['first_param']);
@@ -89,7 +89,7 @@ class BetterBindTest extends TestCase
     public function testBindHeadfulClassWithOneParam()
     {
         $object = new stdClass();
-        $this->betterBind(INeedParams::class, function () use ($object) { return $object; }, $params);
+        $this->testBind(INeedParams::class, function () use ($object) { return $object; }, $params);
         $got = App::makeWith(INeedParams::class, ['first_param' => 123]);
         $this->assertEquals($object, $got);
         $this->assertEquals(123, $params['first_param']);
@@ -103,7 +103,7 @@ class BetterBindTest extends TestCase
     public function testBindHeadfulClassNoParams()
     {
         $object = new stdClass();
-        $this->betterBind(INeedParams::class, function () use ($object) { return $object; }, $params);
+        $this->testBind(INeedParams::class, function () use ($object) { return $object; }, $params);
         try {
             App::makeWith(INeedParams::class, []);   
         } catch (PHPUnit_Framework_ExpectationFailedException $e) {
@@ -121,7 +121,7 @@ class BetterBindTest extends TestCase
     public function testBindHeadfulClassWithTooManyParams()
     {
         $object = new stdClass();
-        $this->betterBind(INeedParams::class, function () use ($object) { return $object; }, $params);
+        $this->testBind(INeedParams::class, function () use ($object) { return $object; }, $params);
         try {
             App::makeWith(INeedParams::class, ['first_param' => 123, 'second_param' => 456, 'failure_param' => 789]);   
         } catch (PHPUnit_Framework_ExpectationFailedException $e) {
@@ -138,7 +138,7 @@ class BetterBindTest extends TestCase
     public function testInstance()
     {
         $object = new stdClass();
-        $this->betterInstance('x', $object, $params);
+        $this->testInstance('x', $object, $params);
         $got = App::makeWith('x', ['y' => 'z']);
         $this->assertEquals($object, $got);
         $this->assertEquals($params['y'], 'z');

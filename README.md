@@ -1,7 +1,7 @@
 # laravel-better-bind
 A better bind feature for automated tests in Laravel/Lumen 5+.
 
-# Why BetterBind is better
+# Why testBind is better
 
 Automated testing in Laravel using mocks means injecting objects using the 
 Application's `bind` and `makeWith` methods.
@@ -11,7 +11,7 @@ This can have some drawbacks.
  * It's verbose in Laravel.
  * It doesn't test that the objects are instantiated with the right parameters.
 
-BetterBind provides a syntactically friendly mechanism to verify that the 
+testBind provides a syntactically friendly mechanism to verify that the 
 parameters your operational code provides are the parameters that the real 
 target class expects.
 
@@ -21,7 +21,7 @@ Extra parameters cause an assertion failure.
 
 It can be a one-liner.
 
-BetterBind also provides a way to capture the constructor parameters so you 
+testBind also provides a way to capture the constructor parameters so you 
 can run your own assertions on them.
 
 # Installation
@@ -33,7 +33,7 @@ composer require thatsus/laravel-better-bind
 ```php
 class TestCase
 {
-    use \ThatsUs\BetterBind;
+    use \ThatsUs\testBind;
 
     ...
 }
@@ -44,7 +44,7 @@ class TestCase
 In this example we expect the `Dog::bark` method to create a `Sound` object with 
 itself as the value for the constructor's `$animal` parameter.
 
-First, we use the `betterInstance` method from BetterBind to provide the mock to 
+First, we use the `testInstance` method from testBind to provide the mock to 
 the code. Then we capture the `$params` argument and check at the end that it 
 has the parameter values we expect.
 
@@ -56,7 +56,7 @@ class DogTest extends TestCase
         $mock = Mockery::mock(Sound::class);
         $mock->shouldReceive('emit')
             ->once();
-        $this->betterInstance(Sound::class, $mock, $params);
+        $this->testInstance(Sound::class, $mock, $params);
 
         $dog = new Dog();
         $dog->bark();
@@ -130,7 +130,7 @@ Extra parameters provided to class constructor for `Sound`: `volume`
 
 # Methods
 
-### betterInstance($signature, $object, [&$params = []])
+### testInstance($signature, $object, [&$params = []])
 
  * $signature - string, the class name or other string requested in a 
                 `makeWith` call.
@@ -142,7 +142,7 @@ Extra parameters provided to class constructor for `Sound`: `volume`
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
 
-### betterBind($signature, $closure, [&$params = []])
+### testBind($signature, $closure, [&$params = []])
 
  * $signature - string, the class name or other string requested in a 
                 `makeWith` call.
@@ -157,7 +157,7 @@ assertions will run against the parameters.
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
 
-# I'm not convinced. Can't I do this without BetterBind?
+# I'm not convinced. Can't I do this without testBind?
 
 You can do some of the same stuff without this library.
 
@@ -171,7 +171,7 @@ class DogTest extends TestCase
         $mock = Mockery::mock(Sound::class);
         $mock->shouldReceive('emit')
             ->once();
-        $this->betterInstance(Sound::class, $mock, $params);
+        $this->testInstance(Sound::class, $mock, $params);
 
         $dog = new Dog();
         $dog->bark();
@@ -202,7 +202,7 @@ class DogTest extends TestCase
 }
 ```
 
-The obvious drawback to the version that doesn't use BetterBind is that there 
+The obvious drawback to the version that doesn't use testBind is that there 
 are extra lines, and one of them is very verbose. The secret extra drawback 
 here is that nothing tests to ensure that the requirements to the real `Sound` 
 class's constructor are met.
@@ -223,7 +223,7 @@ Laravel will detect that `Sound`'s constructor typehints an `Animal` object.
 But no 'animal' element is in the params, so Laravel will new up an `Animal` 
 object to do the job. There will be no test failure.
 
-Using BetterBind, the missing value will be detected and the test will fail.
+Using testBind, the missing value will be detected and the test will fail.
 
 Of course, if you _want_ Laravel to fill in a new `Animal` object itself, you 
 can use `Application`'s original `bind` method.

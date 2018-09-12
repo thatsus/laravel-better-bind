@@ -6,10 +6,10 @@ use Illuminate\Support\Facades\App;
 use ReflectionClass;
 use Closure;
 
-trait BetterBind
+trait testBind
 {
 
-    public function betterBind(string $signature, Closure $closure, &$caught_params = [])
+    public function testBind(string $signature, Closure $closure, &$caught_params = [])
     {
         App::bind($signature, function ($app, $params) use ($signature, $closure, &$caught_params) {
             $caught_params = $params;
@@ -20,9 +20,9 @@ trait BetterBind
         });
     }
 
-    public function betterInstance(string $signature, $instance, &$caught_params = [])
+    public function testInstance(string $signature, $instance, &$caught_params = [])
     {
-        $this->betterBind($signature, function () use ($instance) { return $instance; }, $caught_params);
+        $this->testBind($signature, function () use ($instance) { return $instance; }, $caught_params);
     }
 
     public function assertParamsMatchConstructor(string $class_name, array $params)

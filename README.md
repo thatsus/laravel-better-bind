@@ -162,8 +162,8 @@ assertions will run against the parameters.
 
 ### betterBind(...)->ignoreParameters($param1, $param2, ...)
 
- Do not check that the given parameters name are given by the call to 
- `makeWith`. Allow Laravel to supply them.
+Allow Laravel to supply the parameters named. Do not check that the given 
+parameter names are given by the call to `makeWith`.
 
  * $paramN - string, the name of a parameter
 

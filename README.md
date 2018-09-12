@@ -1,7 +1,7 @@
 # laravel-better-bind
-A better bind feature for automated tests in Laravel/Lumen 5+.
+A mock binding feature for automated tests in Laravel/Lumen 5+.
 
-# Why testBind is better
+# Why Laravel Better Bind is better
 
 Automated testing in Laravel using mocks means injecting objects using the 
 Application's `bind` and `makeWith` methods.
@@ -157,7 +157,7 @@ assertions will run against the parameters.
 If `$signature` is a string that does not refer to an existing class, no 
 assertions will run against the parameters.
 
-# I'm not convinced. Can't I do this without testBind?
+# I'm not convinced. Can't I do this without Laravel Better Bind?
 
 You can do some of the same stuff without this library.
 

@@ -44,8 +44,9 @@ trait BetterBind
                         $real_type = gettype($params[$name]);
                         if ($real_type === 'object') {
                             $real_class = $real_type === 'object' ? get_class($params[$name]) : null;
-                            $this->assertFalse($parameter->getType()->isBuiltIn(), "Parameter `{$name}` for `{$class_name}` is a `" . $real_class . "`, but a `" . $parameter->getType() . "` is expected.");
-                            $this->assertInstanceOf($parameter->getType()->__toString(), $params[$name], "Parameter `{$name}` for `{$class_name}` is a `" . $real_class . "`, but a `" . $parameter->getType() . "` is expected.");
+                            $msg = "Parameter `{$name}` for `{$class_name}` is a `" . $real_class . "`, but a `" . $parameter->getType() . "` is expected.";
+                            $this->assertFalse($parameter->getType()->isBuiltIn(), $msg);
+                            $this->assertInstanceOf($parameter->getType()->__toString(), $params[$name], $msg);
                         } else {
                             $this->assertEquals($parameter->getType()->__toString(), $real_type, "Parameter `{$name}` for `{$class_name}` is a `" . $real_type . "`, but a `" . $parameter->getType() . "` is expected.");
                         }

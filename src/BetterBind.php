@@ -4,6 +4,7 @@ namespace ThatsUs;
 
 use Illuminate\Support\Facades\App;
 use ReflectionClass;
+use ReflectionParameter;
 use Closure;
 
 trait BetterBind
@@ -42,14 +43,9 @@ trait BetterBind
                     }
                     if ($parameter->getType() && isset($params[$name])) {
                         $real_type = gettype($params[$name]);
-                        if ($real_type === 'object') {
-                            $real_class = $real_type === 'object' ? get_class($params[$name]) : null;
-                            $msg = "Parameter `{$name}` for `{$class_name}` is a `" . $real_class . "`, but a `" . $parameter->getType() . "` is expected.";
-                            $this->assertFalse($parameter->getType()->isBuiltIn(), $msg);
-                            $this->assertInstanceOf($parameter->getType()->__toString(), $params[$name], $msg);
-                        } else {
-                            $this->assertEquals($parameter->getType()->__toString(), $real_type, "Parameter `{$name}` for `{$class_name}` is a `" . $real_type . "`, but a `" . $parameter->getType() . "` is expected.");
-                        }
+                        $real_class = $real_type == 'object' ? get_class($params[$name]) : null;
+                        $msg = "Constructor parameter `{$name}` for `{$class_name}` is a `" . ($real_class ?: $real_type) . "`, but a `" . $parameter->getType() . "` is expected.";
+                        $this->assertParameterTypeMatchesRealParameter($parameter, $class_name, $params[$name], $msg);
                     }
                     unset($params[$name]);
                 });
@@ -60,6 +56,25 @@ trait BetterBind
                 })
                 ->implode(', ');
             $this->assertCount(0, $params, "Extra parameters provided to class constructor for `{$class_name}`: {$extra_params}");
+        }
+    }
+
+    public function assertParameterTypeMatchesRealParameter(ReflectionParameter $parameter, string $self_class, $param, string $msg)
+    {
+        if (!$parameter->getType()) {
+            return;
+        }
+        $type_name = $parameter->getType()->__toString();
+        if ($parameter->getType()->isBuiltIn()) {
+            // These types can coerce from any numeric type
+            if (is_numeric($param) && in_array($type_name, ['bool', 'float', 'int', 'string'])) {
+                return;
+            }
+            $this->assertInternalType($type_name, $param, $msg);
+        } elseif ($type_name == 'self') {
+            $this->assertInstanceOf($self_class, $param, $msg);
+        } else {
+            $this->assertInstanceOf($type_name, $param, $msg);
         }
     }
 }

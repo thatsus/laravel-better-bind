@@ -162,7 +162,7 @@ class BetterBindTest extends TestCase
         $object = new stdClass();
         $this->betterInstance(INeedParamsWithTypes::class, $object, $params);
         $got = App::makeWith(INeedParamsWithTypes::class, [
-            'first_param' => Mockery::mock(stdClass::class),
+            'first_param' => Mockery::mock(stdClass::class), // Mockery makes a subclass
             'second_param' => 'some string',
         ]);
         $this->assertEquals($object, $got);
@@ -216,5 +216,59 @@ class BetterBindTest extends TestCase
         $this->assertInstanceOf(stdClass::class, $params['first_param']);
         $this->assertEquals('some string', $params['second_param']);
         $this->assertInstanceOf(stdClass::class, $params['third_param']);
+    }
+
+    public function testTypehintsAllTypesExact()
+    {
+        $object = new stdClass();
+        $sending_params = [
+            'my_stdClass' => new stdClass(),
+            'my_self' => new INeedParamsWithAllTheTypes(),
+            'my_array' => [],
+            'my_callable' => [self::class, 'testTypehintsAllTypesExact'], // hey that's me!
+            'my_bool' => true,
+            'my_float' => 1.2,
+            'my_int' => 3,
+            'my_string' => 'four',
+        ];
+        $this->betterInstance(INeedParamsWithAllTheTypes::class, $object, $params);
+        $got = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
+        $this->assertEquals($object, $got);
+        $this->assertEquals($sending_params, $params);
+    }
+
+    public function testTypehintsAllTypesCasts()
+    {
+        $object = new stdClass();
+
+        $sending_params = [
+            'my_stdClass' => Mockery::mock(stdClass::class),
+            'my_self' => Mockery::mock(INeedParamsWithAllTheTypes::class),
+            'my_array' => null, // I don't think anything coerces to array
+            'my_callable' => null, // I don't think anything coerces to callable
+            'my_bool' => 1,
+            'my_float' => 2,
+            'my_int' => 3.1,
+            'my_string' => 4,
+        ];
+
+        // Check that Laravel would appropriately cast those things in PHP
+        $made = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
+        $this->assertInstanceOf(stdClass::class, $made->my_stdClass);
+        $this->assertInstanceOf(INeedParamsWithAllTheTypes::class, $made->my_self);
+        $this->assertNull($made->my_array);
+        $this->assertNull($made->my_callable);
+        $this->assertEquals(true, $made->my_bool);
+        $this->assertEquals(2.0, $made->my_float);
+        $this->assertEquals(3, $made->my_int);
+        $this->assertEquals('4', $made->my_string);
+
+        // If that worked, then we can test that betterInstance wouldn't have
+        // a problem with it either
+
+        $this->betterInstance(INeedParamsWithAllTheTypes::class, $object, $params);
+        $got = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
+        $this->assertEquals($object, $got);
+        $this->assertEquals($sending_params, $params);
     }
 }

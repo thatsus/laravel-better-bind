@@ -306,7 +306,7 @@ class BetterBindTest extends TestCase
             'potato',
             '0.0',
             '0',
-        ];      
+        ];
         $fields = [
             'my_stdClass' => function ($made) {
                 $this->assertInstanceOf(stdClass::class, $made->my_stdClass);
@@ -332,6 +332,13 @@ class BetterBindTest extends TestCase
             'my_string' => function ($made) {
                 $this->assertTrue(is_string($made->my_string));
             },
+            /**
+             * We only have PHP 7.0 to test with right now.
+             * 
+             * 7.1 introduces `iterable`
+             * 7.2 introduces `object`.
+             * http://php.net/manual/en/functions.arguments.php#functions.arguments.type-declaration
+             */
         ];
         // Convert into array of [$field, $assertions, $single_value]
         return collect($fields)

@@ -285,7 +285,7 @@ class BetterBindTest extends TestCase
             if (!is_object($value) && !is_array($value)) {
                 $description .= " ({$value})";
             }
-            $this->fail("`{$field}` has different behavior for Laravel/PHP and BetterBind {$description}\n"
+            $this->fail("Laravel and BetterBind have different behavior for `{$field}` => {$description}\n"
                 . "Laravel's message: "  . ($laravels_exception ? $laravels_exception->getMessage() : 'No error') . "\n"
                 . "BetterBind's message: "  . ($better_binds_exception ? $better_binds_exception->getMessage() : 'No error') . "\n"
             );
@@ -295,8 +295,7 @@ class BetterBindTest extends TestCase
     public function thingsThatShouldCast()
     {
         $values = [
-            Mockery::mock(stdClass::class),
-            Mockery::mock(INeedParamsWithAllTheTypes::class),
+            new SubclassOfINeedParamsWithAllTheTypes(),
             [],
             [new Exception(), 'getMessage'],
             true,

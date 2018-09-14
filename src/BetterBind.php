@@ -45,7 +45,7 @@ trait BetterBind
                         $real_type = gettype($params[$name]);
                         $real_class = $real_type == 'object' ? get_class($params[$name]) : null;
                         $msg = "Constructor parameter `{$name}` for `{$class_name}` is a `" . ($real_class ?: $real_type) . "`, but a `" . $parameter->getType() . "` is expected.";
-                        $this->assertParameterTypeMatchesRealParameter($parameter, $class_name, $params[$name], $msg);
+                        $this->assertParameterTypeMatchesValue($parameter, $class_name, $params[$name], $msg);
                     }
                     unset($params[$name]);
                 });
@@ -59,7 +59,7 @@ trait BetterBind
         }
     }
 
-    public function assertParameterTypeMatchesRealParameter(ReflectionParameter $parameter, string $self_class, $param, string $msg)
+    public function assertParameterTypeMatchesValue(ReflectionParameter $parameter, string $self_class, $value, string $msg)
     {
         if (!$parameter->getType()) {
             return;
@@ -67,23 +67,23 @@ trait BetterBind
         $type_name = $parameter->getType()->__toString();
         if ($parameter->getType()->isBuiltIn()) {
             // Each of the following `if` clauses allows for type coercion
-            if (is_numeric($param) && in_array($type_name, ['bool', 'float', 'int', 'string'])) {
+            if (is_numeric($value) && in_array($type_name, ['bool', 'float', 'int', 'string'])) {
                 return;
             }
-            if (is_string($param) && $type_name == 'bool') {
+            if (is_string($value) && $type_name == 'bool') {
                 return;
             }
-            if (is_bool($param) && in_array($type_name, ['int', 'float', 'string'])) {
+            if (is_bool($value) && in_array($type_name, ['int', 'float', 'string'])) {
                 return;
             }
-            if (is_object($param) && $type_name == 'string' && method_exists($param, '__toString')) {
+            if (is_object($value) && $type_name == 'string' && method_exists($value, '__toString')) {
                 return;
             }
-            $this->assertInternalType($type_name, $param, $msg);
+            $this->assertInternalType($type_name, $value, $msg);
         } elseif ($type_name == 'self') {
-            $this->assertInstanceOf($self_class, $param, $msg);
+            $this->assertInstanceOf($self_class, $value, $msg);
         } else {
-            $this->assertInstanceOf($type_name, $param, $msg);
+            $this->assertInstanceOf($type_name, $value, $msg);
         }
     }
 }

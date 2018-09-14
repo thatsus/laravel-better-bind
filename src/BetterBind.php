@@ -66,8 +66,11 @@ trait BetterBind
         }
         $type_name = $parameter->getType()->__toString();
         if ($parameter->getType()->isBuiltIn()) {
-            // These types can coerce from any numeric type
+            // Each of the following `if` clauses allows for type coercion
             if (is_numeric($param) && in_array($type_name, ['bool', 'float', 'int', 'string'])) {
+                return;
+            }
+            if (is_string($param) && $type_name == 'bool') {
                 return;
             }
             $this->assertInternalType($type_name, $param, $msg);

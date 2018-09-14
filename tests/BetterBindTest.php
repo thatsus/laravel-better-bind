@@ -237,31 +237,36 @@ class BetterBindTest extends TestCase
         $this->assertEquals($sending_params, $params);
     }
 
-    public function testTypehintsAllTypesCasts()
+    /**
+     * @dataProvider thingsThatShouldCast
+     */
+    public function testTypehintsAllTypesCasts($field, $assertions, $value)
     {
         $object = new stdClass();
 
         $sending_params = [
-            'my_stdClass' => Mockery::mock(stdClass::class),
-            'my_self' => Mockery::mock(INeedParamsWithAllTheTypes::class),
-            'my_array' => null, // I don't think anything coerces to array
-            'my_callable' => null, // I don't think anything coerces to callable
-            'my_bool' => 1,
-            'my_float' => 2,
-            'my_int' => 3.1,
-            'my_string' => 4,
+            'my_stdClass' => null,
+            'my_self'     => null,
+            'my_array'    => null,
+            'my_callable' => null,
+            'my_bool'     => null,
+            'my_float'    => null,
+            'my_int'      => null,
+            'my_string'   => null,
         ];
-
-        // Check that Laravel would appropriately cast those things in PHP
-        $made = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
-        $this->assertInstanceOf(stdClass::class, $made->my_stdClass);
-        $this->assertInstanceOf(INeedParamsWithAllTheTypes::class, $made->my_self);
-        $this->assertNull($made->my_array);
-        $this->assertNull($made->my_callable);
-        $this->assertEquals(true, $made->my_bool);
-        $this->assertEquals(2.0, $made->my_float);
-        $this->assertEquals(3, $made->my_int);
-        $this->assertEquals('4', $made->my_string);
+        $sending_params[$field] = $value;
+        
+        try {
+            // Check that Laravel would appropriately cast those things in PHP
+            $made = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
+        } catch (\TypeError $e) {
+            $description = '`' . gettype($value) . '`';
+            if (!is_object($value)) {
+                $description .= " like '$value'";
+            }
+            $this->fail("Actually, we are wrong. Laravel's IoC or PHP won't allow `{$field}` to receive a {$description}. Change " . __CLASS__ . "::thingsThatShouldCast.");
+        }
+        $assertions($made);
 
         // If that worked, then we can test that betterInstance wouldn't have
         // a problem with it either
@@ -270,5 +275,95 @@ class BetterBindTest extends TestCase
         $got = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
         $this->assertEquals($object, $got);
         $this->assertEquals($sending_params, $params);
+    }
+
+    public function thingsThatShouldCast()
+    {
+        $things_that_should_cast = [
+            'my_stdClass' => [
+                'assertions' => function ($made) {
+                    $this->assertInstanceOf(stdClass::class, $made->my_stdClass);
+                },
+                'values' => [
+                    Mockery::mock(stdClass::class),
+                ],
+            ],
+            'my_self' => [
+                'assertions' => function ($made) {
+                    $this->assertInstanceOf(INeedParamsWithAllTheTypes::class, $made->my_self);
+                },
+                'values' => [
+                    Mockery::mock(INeedParamsWithAllTheTypes::class),
+                ],
+            ],
+            'my_array' => [
+                'assertions' => function ($made) {
+                    $this->assertNull($made->my_array);
+                },
+                'values' => [
+                    // I don't think anything coerces to array
+                ],
+            ],
+            'my_callable' => [
+                'assertions' => function ($made) {
+                    $this->assertNull($made->my_callable);
+                },
+                'values' => [
+                    // I don't think anything coerces to callable
+                ],
+            ],
+            'my_bool' => [
+                'assertions' => function ($made) {
+                    $this->assertTrue(is_bool($made->my_bool));
+                },
+                'values' => [
+                    1,
+                    2.3,
+                    '4',
+                    'potato',
+                ],
+            ],
+            'my_float' => [
+                'assertions' => function ($made) {
+                    $this->assertTrue(is_numeric($made->my_float));
+                },
+                'values' => [
+                    1,
+                    '4',
+                ],
+            ],
+            'my_int' => [
+                'assertions' => function ($made) {
+                    $this->assertTrue(is_numeric($made->my_int));
+                },
+                'values' => [
+                    2.3,
+                    '4',
+                ],
+            ],
+            'my_string' => [
+                'assertions' => function ($made) {
+                    $this->assertTrue(is_string($made->my_string));
+                },
+                'values' => [
+                    1,
+                    2.3,
+                    '4',
+                ],
+            ],
+        ];
+        // Convert into array of [$field, $assertions, $single_value]
+        return collect($things_that_should_cast)
+            ->flatMap(function ($test, $field) {
+
+                $assertions = $test['assertions'];
+
+                return collect($test['values'])
+                    ->map(function ($value) use ($field, $assertions) {
+                        return [$field, $assertions, $value];
+                    })
+                    ->all();
+            })
+            ->all();
     }
 }

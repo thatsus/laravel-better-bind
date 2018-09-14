@@ -271,7 +271,7 @@ class BetterBindTest extends TestCase
             $got = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
             $this->assertEquals($object, $got);
             $this->assertEquals($sending_params, $params);
-        } catch (\Throwable $e) {
+        } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
             $better_binds_exception = $e;
         }
 

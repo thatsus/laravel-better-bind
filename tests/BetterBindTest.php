@@ -310,25 +310,25 @@ class BetterBindTest extends TestCase
             'my_stdClass' => function ($made) {
                 $this->assertInstanceOf(stdClass::class, $made->my_stdClass);
             },
-            'my_self' => function ($made) {
+            'my_self'     => function ($made) {
                 $this->assertInstanceOf(INeedParamsWithAllTheTypes::class, $made->my_self);
             },
-            'my_array' => function ($made) {
+            'my_array'    => function ($made) {
                 $this->assertTrue(is_array($made->my_array));
             },
             'my_callable' => function ($made) {
                 $this->assertTrue(is_callable($made->my_callable));
             },
-            'my_bool' => function ($made) {
+            'my_bool'     => function ($made) {
                 $this->assertTrue(is_bool($made->my_bool));
             },
-            'my_float' => function ($made) {
+            'my_float'    => function ($made) {
                 $this->assertTrue(is_numeric($made->my_float));
             },
-            'my_int' => function ($made) {
+            'my_int'      => function ($made) {
                 $this->assertTrue(is_numeric($made->my_int));
             },
-            'my_string' => function ($made) {
+            'my_string'   => function ($made) {
                 $this->assertTrue(is_string($made->my_string));
             },
             /**

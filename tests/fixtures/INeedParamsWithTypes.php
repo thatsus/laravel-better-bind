@@ -1,6 +1,5 @@
 <?php
 
-
 class INeedParamsWithTypes
 {
     public function __construct(

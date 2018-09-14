@@ -66,24 +66,29 @@ trait BetterBind
         }
         $type_name = $parameter->getType()->__toString();
         if ($parameter->getType()->isBuiltIn()) {
-            // Each of the following `if` clauses allows for type coercion
-            if (is_numeric($value) && in_array($type_name, ['bool', 'float', 'int', 'string'])) {
-                return;
-            }
-            if (is_string($value) && $type_name == 'bool') {
-                return;
-            }
-            if (is_bool($value) && in_array($type_name, ['int', 'float', 'string'])) {
-                return;
-            }
-            if (is_object($value) && $type_name == 'string' && method_exists($value, '__toString')) {
-                return;
-            }
-            $this->assertInternalType($type_name, $value, $msg);
+            $this->assertInternalTypeCast($type_name, $value, $msg);
         } elseif ($type_name == 'self') {
             $this->assertInstanceOf($self_class, $value, $msg);
         } else {
             $this->assertInstanceOf($type_name, $value, $msg);
         }
+    }
+
+    public function assertInternalTypeCast($type_name, $value, $msg)
+    {
+        // Each of the following `if` clauses allows for type coercion
+        if (is_numeric($value) && in_array($type_name, ['bool', 'float', 'int', 'string'])) {
+            return;
+        }
+        if (is_string($value) && $type_name == 'bool') {
+            return;
+        }
+        if (is_bool($value) && in_array($type_name, ['int', 'float', 'string'])) {
+            return;
+        }
+        if (is_object($value) && $type_name == 'string' && method_exists($value, '__toString')) {
+            return;
+        }
+        $this->assertInternalType($type_name, $value, $msg);
     }
 }

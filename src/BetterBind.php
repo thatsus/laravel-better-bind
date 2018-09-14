@@ -73,6 +73,12 @@ trait BetterBind
             if (is_string($param) && $type_name == 'bool') {
                 return;
             }
+            if (is_bool($param) && in_array($type_name, ['int', 'float', 'string'])) {
+                return;
+            }
+            if (is_object($param) && $type_name == 'string' && method_exists($param, '__toString')) {
+                return;
+            }
             $this->assertInternalType($type_name, $param, $msg);
         } elseif ($type_name == 'self') {
             $this->assertInstanceOf($self_class, $param, $msg);

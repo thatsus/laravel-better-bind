@@ -256,109 +256,87 @@ class BetterBindTest extends TestCase
         ];
         $sending_params[$field] = $value;
         
+        $laravels_exception = null;
         try {
-            // Check that Laravel would appropriately cast those things in PHP
+            // Find out what Laravel or PHP thinks
             $made = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
-        } catch (\TypeError $e) {
-            $description = '`' . gettype($value) . '`';
-            if (!is_object($value)) {
-                $description .= " like '$value'";
-            }
-            $this->fail("Actually, we are wrong. Laravel's IoC or PHP won't allow `{$field}` to receive a {$description}. Change " . __CLASS__ . "::thingsThatShouldCast.");
+            $assertions($made);
+        } catch (\Throwable $e) {
+            $laravels_exception = $e;
         }
-        $assertions($made);
 
-        // If that worked, then we can test that betterInstance wouldn't have
-        // a problem with it either
+        $better_binds_exception = null;
+        try {
+            $this->betterInstance(INeedParamsWithAllTheTypes::class, $object, $params);
+            $got = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
+            $this->assertEquals($object, $got);
+            $this->assertEquals($sending_params, $params);
+        } catch (\Throwable $e) {
+            $better_binds_exception = $e;
+        }
 
-        $this->betterInstance(INeedParamsWithAllTheTypes::class, $object, $params);
-        $got = App::makeWith(INeedParamsWithAllTheTypes::class, $sending_params);
-        $this->assertEquals($object, $got);
-        $this->assertEquals($sending_params, $params);
+        if (
+            (!$better_binds_exception && $laravels_exception) 
+            || ($better_binds_exception && !$laravels_exception) 
+        )
+        {
+            // Uh oh, they disagree!
+            $description = '`' . gettype($value) . '`';
+            if (!is_object($value) && !is_array($value)) {
+                $description .= " ({$value})";
+            }
+            $this->fail("`{$field}` has different behavior for Laravel/PHP and BetterBind {$description}\n"
+                . "Laravel's message: "  . ($laravels_exception ? $laravels_exception->getMessage() : 'No error') . "\n"
+                . "BetterBind's message: "  . ($better_binds_exception ? $better_binds_exception->getMessage() : 'No error') . "\n"
+            );
+        }
     }
 
     public function thingsThatShouldCast()
     {
-        $things_that_should_cast = [
-            'my_stdClass' => [
-                'assertions' => function ($made) {
-                    $this->assertInstanceOf(stdClass::class, $made->my_stdClass);
-                },
-                'values' => [
-                    Mockery::mock(stdClass::class),
-                ],
-            ],
-            'my_self' => [
-                'assertions' => function ($made) {
-                    $this->assertInstanceOf(INeedParamsWithAllTheTypes::class, $made->my_self);
-                },
-                'values' => [
-                    Mockery::mock(INeedParamsWithAllTheTypes::class),
-                ],
-            ],
-            'my_array' => [
-                'assertions' => function ($made) {
-                    $this->assertNull($made->my_array);
-                },
-                'values' => [
-                    // I don't think anything coerces to array
-                ],
-            ],
-            'my_callable' => [
-                'assertions' => function ($made) {
-                    $this->assertNull($made->my_callable);
-                },
-                'values' => [
-                    // I don't think anything coerces to callable
-                ],
-            ],
-            'my_bool' => [
-                'assertions' => function ($made) {
-                    $this->assertTrue(is_bool($made->my_bool));
-                },
-                'values' => [
-                    1,
-                    2.3,
-                    '4',
-                    'potato',
-                ],
-            ],
-            'my_float' => [
-                'assertions' => function ($made) {
-                    $this->assertTrue(is_numeric($made->my_float));
-                },
-                'values' => [
-                    1,
-                    '4',
-                ],
-            ],
-            'my_int' => [
-                'assertions' => function ($made) {
-                    $this->assertTrue(is_numeric($made->my_int));
-                },
-                'values' => [
-                    2.3,
-                    '4',
-                ],
-            ],
-            'my_string' => [
-                'assertions' => function ($made) {
-                    $this->assertTrue(is_string($made->my_string));
-                },
-                'values' => [
-                    1,
-                    2.3,
-                    '4',
-                ],
-            ],
+        $values = [
+            Mockery::mock(stdClass::class),
+            Mockery::mock(INeedParamsWithAllTheTypes::class),
+            [],
+            [new Exception(), 'getMessage'],
+            true,
+            1,
+            2.3,
+            '4',
+            'potato',
+            '0.0',
+            '0',
+        ];      
+        $fields = [
+            'my_stdClass' => function ($made) {
+                $this->assertInstanceOf(stdClass::class, $made->my_stdClass);
+            },
+            'my_self' => function ($made) {
+                $this->assertInstanceOf(INeedParamsWithAllTheTypes::class, $made->my_self);
+            },
+            'my_array' => function ($made) {
+                $this->assertTrue(is_array($made->my_array));
+            },
+            'my_callable' => function ($made) {
+                $this->assertTrue(is_callable($made->my_callable));
+            },
+            'my_bool' => function ($made) {
+                $this->assertTrue(is_bool($made->my_bool));
+            },
+            'my_float' => function ($made) {
+                $this->assertTrue(is_numeric($made->my_float));
+            },
+            'my_int' => function ($made) {
+                $this->assertTrue(is_numeric($made->my_int));
+            },
+            'my_string' => function ($made) {
+                $this->assertTrue(is_string($made->my_string));
+            },
         ];
         // Convert into array of [$field, $assertions, $single_value]
-        return collect($things_that_should_cast)
-            ->flatMap(function ($test, $field) {
-
-                $assertions = $test['assertions'];
-
-                return collect($test['values'])
+        return collect($fields)
+            ->flatMap(function ($assertions, $field) use ($values) {
+                return collect($values)
                     ->map(function ($value) use ($field, $assertions) {
                         return [$field, $assertions, $value];
                     })

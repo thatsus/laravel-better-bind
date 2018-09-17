@@ -238,6 +238,11 @@ class BetterBindTest extends TestCase
     }
 
     /**
+     * Here we go all out.
+     * We attempt to put every type value into every type parameter.
+     * If Laravel fails then Better Bind needs to fail too. If one succeeds,
+     * then they need to both succeed.
+     * 
      * @dataProvider thingsThatShouldCast
      */
     public function testTypehintsAllTypesCasts($field, $assertions, $value)

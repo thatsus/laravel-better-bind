@@ -5,8 +5,8 @@
   "keywords": ["bind", "laravel", "automated tests"],
   "authors": [
     {
-      "name": "Daniel Kuck-Alvarez",
-      "email": "dkuck@thatsus.com"
+      "name": "Dan Kuck-Alvarez",
+      "email": "dankuck@gmail.com"
     }
   ],
   "require": {
